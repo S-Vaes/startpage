@@ -8,29 +8,57 @@
 
 (defparameter *bookmarks*
   '((:category "DEV"
-     :links ((:title "/gh/"
+     :links ((:title "gh"
               :url "https://github.com"
-              :icon "fab fa-github")
-             (:title "/gl/"
+              :icon "github")
+             (:title "gl"
               :url "https://gitlab.com"
-              :icon "fab fa-gitlab")
-             (:title "/bb/"
-              :url "https://bitbucket.org"
-              :icon "fas fa-book")
-             (:title "/cpp/"
+              :icon "gitlab")
+             (:title "lbs"
+              :url "https://lobste.rs/"
+              :icon "rss")
+             (:title "hs"
+              :url "https://news.ycombinator.com/"
+              :icon "rss")
+             (:title "cld"
+              :url "https://claude.ai"
+              :icon "bot")))
+    (:category "CPP"
+     :links ((:title "ref"
               :url "https://cppreference.com"
-              :icon "fas fa-code")))
+              :icon "book-open")
+             (:title "quick"
+              :url "https://quickref.me/cpp"
+              :icon "zap")
+             (:title "comp"
+              :url "https://godbolt.org"
+              :icon "cpu")
+             (:title "boost"
+              :url "https://www.boost.org/doc/"
+              :icon "rocket")))
+    (:category "LISP"
+     :links ((:title "ql"
+              :url "https://www.quicklisp.org/beta/"
+              :icon "package")
+             (:title "pcl"
+              :url "https://gigamonkeys.com/book/"
+              :icon "book")
+             (:title "hp"
+              :url "http://www.lispworks.com/documentation/HyperSpec/Front/"
+              :icon "book-open")
+             (:title "clhs"
+              :url "https://clhs.lisp.se/"
+              :icon "library")))
     (:category "NIX"
-     :links ((:title "/pkgs/"
+     :links ((:title "pkgs"
               :url "https://search.nixos.org/packages"
-              :icon "fas fa-snowflake")
-             (:title "/opt/"
+              :icon "snowflake")
+             (:title "opt"
               :url "https://nixos.org/manual/nix/stable/"
-              :icon "fas fa-snowflake")))
-    (:category "HM"
-     :links ((:title "/opt/"
+              :icon "snowflake")
+             (:title "hm"
               :url "https://nix-community.github.io/home-manager/options.html"
-              :icon "fas fa-home")))))
+              :icon "home")))))
 
 ;; Updated light coffee theme
 (defparameter *theme*
@@ -39,7 +67,7 @@
     :bg-alt "#EBE5E0"          ; Light roast accent
     :fg-alt "#8B7355"          ; Medium roast text
     :bg-active "#E6DCD4"       ; Pressed state
-    :border "#D4C8BE"))        ; Subtle borders
+    :border "#D4C8BE"))
 
 (defun generate-css ()
   (cl-css:css
@@ -49,7 +77,8 @@
       :padding 0
       :background ,(getf *theme* :bg)
       :color ,(getf *theme* :fg)
-      :min-height "100vh"
+      :overflow "hidden"
+      :height "100vh"
       :display "flex"
       :padding "2rem")
      (".main-container"
@@ -126,9 +155,62 @@
       :background ,(getf *theme* :bg-active))
      (".link i"
       :color ,(getf *theme* :fg-alt)
-      :font-size "1rem"          ; Slightly smaller for FA icons
-      :width "1.2rem"            ; Fixed width for alignment
-      :text-align "center"))))
+      :font-size "1.25rem"        ; Slightly larger for Lucide
+      :width "1.5rem"             ; Increased width for better spacing
+      :height "1.5rem"            ; Match width for perfect squares
+      :display "inline-flex"
+      :align-items "center"
+      :justify-content "center")
+     (".link div[class^='icon-']"  ; Target all icon-* classes
+      :color ,(getf *theme* :fg-alt)
+      :font-size "1.25rem"
+      :width "1.5rem"
+      :height "1.5rem"
+      :display "inline-flex"
+      :align-items "center"
+      :justify-content "center")
+     ;; Basic icon styling
+     (".link div[class^='icon-']"
+      :font-size "1.25rem"
+      :width "1.5rem"
+      :height "1.5rem"
+      :display "inline-flex"
+      :align-items "center"
+      :justify-content "center"
+      :transition "color 0.2s ease-in-out")
+
+     ;; Default icon color
+     (".link div[class^='icon-']"
+      :color ,(getf *theme* :fg-alt))
+
+     ;; Category-specific colors
+     (".category:nth-of-type(1) .link div[class^='icon-']"  ; DEV
+      :color "#4A9EED")
+
+     (".category:nth-of-type(2) .link div[class^='icon-']"  ; CPP
+      :color "#00599C")
+
+     (".category:nth-of-type(3) .link div[class^='icon-']"  ; LISP
+      :color "#C065DB")
+
+     (".category:nth-of-type(4) .link div[class^='icon-']"  ; GO
+      :color "#00ADD8")
+
+     (".category:nth-of-type(5) .link div[class^='icon-']"  ; PY
+      :color "#3776AB")
+
+     (".category:nth-of-type(6) .link div[class^='icon-']"  ; NIX
+      :color "#5277C3")
+
+     (".category:nth-of-type(7) .link div[class^='icon-']"  ; NEWS
+      :color "#FF6600")
+
+     (".category:nth-of-type(8) .link div[class^='icon-']"  ; AI
+      :color "#00A67D")
+
+     ;; Hover effect - brighten icons
+     (".link:hover div[class^='icon-']"
+      :filter "brightness(1.2)"))))
 
 ;; HTML generation with a few adjustments for image sizing
 (defun generate-html ()
@@ -142,9 +224,7 @@
       (:title "Startpage")
       (:link :rel "stylesheet" :href "styles.css")
       (:link :rel "stylesheet"
-             :href "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css")
-      (:link :rel "stylesheet"
-             :href "https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css")
+             :href "https://cdn.jsdelivr.net/npm/lucide-static@0.293.0/font/lucide.min.css")
       (:link :rel "stylesheet"
              :href "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap")
       (:script :src "script.js"))
@@ -168,37 +248,108 @@
                                         (:a :class "link"
                                             :href (getf link :url)
                                             :target "_blank"
-                                            (:i :class (getf link :icon))  ; Use the full class directly
+                                            (:div :class (format nil "icon-~A" (getf link :icon)))
                                             (:span (getf link :title))))))))))))))
 
 (defun generate-js ()
   (ps:ps
-    (ps:defun init ()
-      (let ((input (ps:chain document (get-element-by-id "search-input"))))
-        (when input
-          ;; Handle "/" shortcut
-          (setf (ps:@ document 'onkeydown)
-                (lambda (e)
-                  (when (and (= (ps:@ e 'key) "/")
-                            (not (equal (ps:@ document 'active-element) input)))
-                    (ps:chain e (prevent-default))
-                    (ps:chain input (focus)))))
+    (ps:var current-link -1)
 
-          ;; Handle search input events
-          (setf (ps:@ input 'onkeydown)
+    (ps:defun get-all-links ()
+      ((ps:@ document query-selector-all) ".link"))
+
+    (ps:defun focus-link (index)
+      (let* ((links (get-all-links))
+             (total (ps:@ links length))
+             (new-index (cond
+                         ((< index 0) (1- total))
+                         ((>= index total) 0)
+                         (t index))))
+        (when (> total 0)
+          (when (and (>= current-link 0) (< current-link total))
+            ((ps:@ (aref links current-link) remove-attribute) "data-focused"))
+          (setf current-link new-index)
+          (let ((current (aref links new-index)))
+            ((ps:@ current set-attribute) "data-focused" "true")
+            ((ps:@ current scroll-into-view)
+             (ps:create behavior "smooth" block "center"))))))
+
+    (ps:defun is-in-search ()
+      (equal (ps:@ document active-element id) "search-input"))
+
+    (ps:defun prevent-browser-default (e)
+      (when (ps:@ e cancelable)  ;; Only prevent default if the event is cancelable
+        ((ps:@ e prevent-default))
+        ((ps:@ e stop-propagation))))
+
+    (ps:defun handle-key (e)
+      (let ((is-ctrl (ps:@ e ctrl-key))
+            (key (ps:@ e key)))
+
+        (if (and is-ctrl (= key "n"))
+            (progn
+              ((ps:@ e prevent-default))
+              ((ps:@ e stop-propagation))
+              (focus-link (1+ current-link)))
+
+            (unless (and (is-in-search)
+                        (not (and is-ctrl (or (= key "g") (= key "s")))))
+              (cond
+                ((and is-ctrl (= key "p"))
+                 ((ps:@ e prevent-default))
+                 (focus-link (1- current-link)))
+
+                ((and is-ctrl (= key "s"))
+                 ((ps:@ e prevent-default))
+                 (let ((search ((ps:@ document get-element-by-id) "search-input")))
+                   ((ps:@ search focus))
+                   ((ps:@ search select))))
+
+                ((and is-ctrl (= key "m"))
+                 ((ps:@ e prevent-default))
+                 (when (>= current-link 0)
+                   (let* ((links (get-all-links))
+                          (current (aref links current-link)))
+                     (setf (ps:@ window location href) (ps:@ current href)))))
+
+                ((and is-ctrl (= key "a"))
+                 ((ps:@ e prevent-default))
+                 (focus-link 0))
+
+                ((and is-ctrl (= key "e"))
+                 ((ps:@ e prevent-default))
+                 (focus-link (1- (ps:@ (get-all-links) length))))
+
+                ((and is-ctrl (= key "g"))
+                 ((ps:@ e prevent-default))
+                 (let ((search ((ps:@ document get-element-by-id) "search-input")))
+                   ((ps:@ search blur))
+                   (setf current-link -1)
+                   ((ps:@ (get-all-links) for-each)
+                    (lambda (link)
+                      ((ps:@ link remove-attribute) "data-focused"))))))))))
+
+    (ps:defun init ()
+      (let ((input ((ps:@ document get-element-by-id) "search-input")))
+        (when input
+          (setf (ps:@ input onkeydown)
                 (lambda (e)
                   (cond
-                    ((= (ps:@ e 'key) "Escape")
-                     (ps:chain input (blur)))
-                    ((= (ps:@ e 'key) "Enter")
-                     (let ((query (ps:@ input 'value)))
-                       (when (> (ps:@ query 'length) 0)
-                         (ps:chain e (prevent-default))
-                         (setf (ps:@ window 'location 'href)
+                    ((and (ps:@ e ctrl-key) (= (ps:@ e key) "n"))
+                     ((ps:@ e prevent-default))
+                     ((ps:@ e stop-propagation)))
+                    ((and (ps:@ e ctrl-key) (= (ps:@ e key) "g"))
+                     ((ps:@ input blur)))
+                    ((= (ps:@ e key) "Enter")
+                     (let ((query (ps:@ input value)))
+                       (when (> (ps:@ query length) 0)
+                         ((ps:@ e prevent-default))
+                         (setf (ps:@ window location href)
                                (+ "https://startpage.com/search?q="
-                                  (encode-u-r-i query))))))))))))
+                                  ((ps:@ -u-r-i encode) query))))))))))
+        (setf (ps:@ document onkeydown) handle-key)))
 
-    (setf (ps:@ window 'onload) init)))
+    (setf (ps:@ window onload) init)))
 
 (defun generate-site ()
   (ensure-directories-exist "output/")

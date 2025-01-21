@@ -1,4 +1,4 @@
-body { font-family: JetBrains Mono, monospace; margin: 0; padding: 0; background: #F5F1EE; color: #4A3B32; min-height: 100vh; display: flex; padding: 2rem; }
+body { font-family: JetBrains Mono, monospace; margin: 0; padding: 0; background: #F5F1EE; color: #4A3B32; overflow: hidden; height: 100vh; display: flex; padding: 2rem; }
 .main-container { display: flex; margin: auto; gap: 3rem; width: 100%; max-width: 1200px; align-items: stretch; }
 .image-container { flex: 0 0 450px; border-radius: 1.5rem; overflow: hidden; display: flex; padding: 1rem; background: #EBE5E0; box-shadow: 0 2px 20px rgba(0,0,0,0.08); }
 .image-container img { width: 100%; height: 100%; object-fit: cover; border-radius: 0.75rem; flex: 1 1 auto; }
@@ -12,4 +12,16 @@ body { font-family: JetBrains Mono, monospace; margin: 0; padding: 0; background
 .links { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.75rem; }
 .link { display: inline-flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; text-decoration: none; color: #4A3B32; background: #F5F1EE; border-radius: 0.25rem; transition: all 0.2s; }
 .link:hover { background: #E6DCD4; }
-.link i { color: #8B7355; font-size: 1rem; width: 1.2rem; text-align: center; }
+.link i { color: #8B7355; font-size: 1.25rem; width: 1.5rem; height: 1.5rem; display: inline-flex; align-items: center; justify-content: center; }
+.link div[class^='icon-'] { color: #8B7355; font-size: 1.25rem; width: 1.5rem; height: 1.5rem; display: inline-flex; align-items: center; justify-content: center; }
+.link div[class^='icon-'] { font-size: 1.25rem; width: 1.5rem; height: 1.5rem; display: inline-flex; align-items: center; justify-content: center; transition: color 0.2s ease-in-out; }
+.link div[class^='icon-'] { color: #8B7355; }
+.category:nth-of-type(1) .link div[class^='icon-'] { color: #4A9EED; }
+.category:nth-of-type(2) .link div[class^='icon-'] { color: #00599C; }
+.category:nth-of-type(3) .link div[class^='icon-'] { color: #C065DB; }
+.category:nth-of-type(4) .link div[class^='icon-'] { color: #00ADD8; }
+.category:nth-of-type(5) .link div[class^='icon-'] { color: #3776AB; }
+.category:nth-of-type(6) .link div[class^='icon-'] { color: #5277C3; }
+.category:nth-of-type(7) .link div[class^='icon-'] { color: #FF6600; }
+.category:nth-of-type(8) .link div[class^='icon-'] { color: #00A67D; }
+.link:hover div[class^='icon-'] { filter: brightness(1.2); }

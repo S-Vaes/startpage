@@ -7,9 +7,7 @@
   <title>Startpage</title>
   <link rel=stylesheet href=styles.css>
   <link rel=stylesheet
-        href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css>
-  <link rel=stylesheet
-        href=https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css>
+        href=https://cdn.jsdelivr.net/npm/lucide-static@0.293.0/font/lucide.min.css>
   <link rel=stylesheet
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;display=swap">
   <script src=script.js></script>
@@ -28,28 +26,53 @@
      <div class=category>
       <h2 class=category-title>DEV</h2>
       <div class=links>
-       <a class=link href=https://github.com target=_blank><i class="fab fa-github"></i>
-        <span>/gh/</span></a><a class=link href=https://gitlab.com target=_blank><i
-        class="fab fa-gitlab"></i><span>/gl/</span></a><a class=link
-       href=https://bitbucket.org target=_blank><i class="fas fa-book"></i><span>/bb/</span></a>
-       <a class=link href=https://cppreference.com target=_blank><i class="fas fa-code"></i>
-        <span>/cpp/</span></a>
+       <a class=link href=https://github.com target=_blank>
+        <div class=icon-github></div><span>gh</span></a><a class=link
+       href=https://gitlab.com target=_blank>
+        <div class=icon-gitlab></div><span>gl</span></a><a class=link
+       href="https://lobste.rs/" target=_blank>
+        <div class=icon-rss></div><span>lbs</span></a><a class=link
+       href="https://news.ycombinator.com/" target=_blank>
+        <div class=icon-rss></div><span>hs</span></a><a class=link
+       href=https://claude.ai target=_blank>
+        <div class=icon-bot></div><span>cld</span></a>
+      </div>
+     </div>
+     <div class=category>
+      <h2 class=category-title>CPP</h2>
+      <div class=links>
+       <a class=link href=https://cppreference.com target=_blank>
+        <div class=icon-book-open></div><span>ref</span></a><a class=link
+       href=https://quickref.me/cpp target=_blank>
+        <div class=icon-zap></div><span>quick</span></a><a class=link
+       href=https://godbolt.org target=_blank>
+        <div class=icon-cpu></div><span>comp</span></a><a class=link
+       href="https://www.boost.org/doc/" target=_blank>
+        <div class=icon-rocket></div><span>boost</span></a>
+      </div>
+     </div>
+     <div class=category>
+      <h2 class=category-title>LISP</h2>
+      <div class=links>
+       <a class=link href="https://www.quicklisp.org/beta/" target=_blank>
+        <div class=icon-package></div><span>ql</span></a><a class=link
+       href="https://gigamonkeys.com/book/" target=_blank>
+        <div class=icon-book></div><span>pcl</span></a><a class=link
+       href="http://www.lispworks.com/documentation/HyperSpec/Front/" target=_blank>
+        <div class=icon-book-open></div><span>hp</span></a><a class=link
+       href="https://clhs.lisp.se/" target=_blank>
+        <div class=icon-library></div><span>clhs</span></a>
       </div>
      </div>
      <div class=category>
       <h2 class=category-title>NIX</h2>
       <div class=links>
-       <a class=link href=https://search.nixos.org/packages target=_blank><i
-        class="fas fa-snowflake"></i><span>/pkgs/</span></a><a class=link
-       href="https://nixos.org/manual/nix/stable/" target=_blank><i
-        class="fas fa-snowflake"></i><span>/opt/</span></a>
-      </div>
-     </div>
-     <div class=category>
-      <h2 class=category-title>HM</h2>
-      <div class=links>
-       <a class=link href=https://nix-community.github.io/home-manager/options.html
-       target=_blank><i class="fas fa-home"></i><span>/opt/</span></a>
+       <a class=link href=https://search.nixos.org/packages target=_blank>
+        <div class=icon-snowflake></div><span>pkgs</span></a><a class=link
+       href="https://nixos.org/manual/nix/stable/" target=_blank>
+        <div class=icon-snowflake></div><span>opt</span></a><a class=link
+       href=https://nix-community.github.io/home-manager/options.html target=_blank>
+        <div class=icon-home></div><span>hm</span></a>
       </div>
      </div>
     </div>
