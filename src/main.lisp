@@ -235,9 +235,11 @@
                         :alt (getf *config* :image-alt)))
             (:div :class "content-container"
                   (:div :class "search-box"
-                        (:input :type "text"
-                               :id "search-input"
-                                :placeholder "Brew up a search..."))
+                        (:form :id "search-form"
+                               :action "javascript:void(0);"
+                               (:input :type "text"
+                                       :id "search-input"
+                                       :placeholder "Brew up a search...")))
                   (:div :class "categories"
                         (dolist (category *bookmarks*)
                           (:div :class "category"
@@ -251,122 +253,115 @@
                                             (:div :class (format nil "icon-~A" (getf link :icon)))
                                             (:span (getf link :title))))))))))))))
 
+
 (defun generate-js ()
   (ps:ps
-    (ps:var current-link -1)
+    ;; Helper functions
+    (ps:defun prevent-browser-default (e)
+      (when (ps:@ e cancelable)
+        ((ps:@ e prevent-default))
+        ((ps:@ e stop-propagation))))
 
-    (ps:defun get-all-links ()
-      ((ps:@ document query-selector-all) ".link"))
-
-    (ps:defun focus-link (index)
-      (let* ((links (get-all-links))
-             (total (ps:@ links length))
-             (new-index (cond
-                         ((< index 0) (1- total))
-                         ((>= index total) 0)
-                         (t index))))
-        (when (> total 0)
-          (when (and (>= current-link 0) (< current-link total))
-            ((ps:@ (aref links current-link) remove-attribute) "data-focused"))
-          (setf current-link new-index)
-          (let ((current (aref links new-index)))
-            ((ps:@ current set-attribute) "data-focused" "true")
-            ((ps:@ current scroll-into-view)
-             (ps:create behavior "smooth" block "center"))))))
+    (ps:defun perform-search (query)
+      (when (and query (> (ps:@ query length) 0))
+        (let ((url (+ "https://startpage.com/search?q="
+                     ((ps:@ window encode-u-r-i-component) query))))
+          (setf (ps:@ window location href) url))))
 
     (ps:defun is-in-search ()
       (equal (ps:@ document active-element id) "search-input"))
 
-    (ps:defun prevent-browser-default (e)
-      (when (ps:@ e cancelable)  ;; Only prevent default if the event is cancelable
-        ((ps:@ e prevent-default))
-        ((ps:@ e stop-propagation))))
+    (ps:defun clear-and-blur-search ()
+      (let ((search ((ps:@ document get-element-by-id) "search-input")))
+        (when search
+          (setf (ps:@ search value) "")
+          ((ps:@ search blur)))))
 
+    ;; Event handlers
     (ps:defun handle-key (e)
       (let ((is-ctrl (ps:@ e ctrl-key))
             (key (ps:@ e key)))
+        (cond
+          ;; Ctrl-S to focus search
+          ((and is-ctrl (= key "s"))
+           (prevent-browser-default e)
+           (let ((search ((ps:@ document get-element-by-id) "search-input")))
+             ((ps:@ search focus))
+             ((ps:@ search select))))
 
-        (if (and is-ctrl (= key "n"))
-            (progn
-              ((ps:@ e prevent-default))
-              ((ps:@ e stop-propagation))
-              (focus-link (1+ current-link)))
+          ;; Ctrl-G to exit search
+          ((and is-ctrl (= key "g"))
+           (prevent-browser-default e)
+           (clear-and-blur-search)))))
 
-            (unless (and (is-in-search)
-                        (not (and is-ctrl (or (= key "g") (= key "s")))))
-              (cond
-                ((and is-ctrl (= key "p"))
-                 ((ps:@ e prevent-default))
-                 (focus-link (1- current-link)))
+    (ps:defun handle-search-submit (e)
+      (prevent-browser-default e)
+      (let* ((input ((ps:@ document get-element-by-id) "search-input"))
+             (query (and input (ps:@ input value))))
+        (perform-search query)))
 
-                ((and is-ctrl (= key "s"))
-                 ((ps:@ e prevent-default))
-                 (let ((search ((ps:@ document get-element-by-id) "search-input")))
-                   ((ps:@ search focus))
-                   ((ps:@ search select))))
+    (ps:defun handle-search-keydown (e)
+      (let ((key (ps:@ e key)))
+        (cond
+          ((= key "Enter")
+           (let ((query (ps:@ e target value)))
+             (prevent-browser-default e)
+             (perform-search query)))
 
-                ((and is-ctrl (= key "m"))
-                 ((ps:@ e prevent-default))
-                 (when (>= current-link 0)
-                   (let* ((links (get-all-links))
-                          (current (aref links current-link)))
-                     (setf (ps:@ window location href) (ps:@ current href)))))
+          ;; Allow Ctrl-G to exit search
+          ((and (ps:@ e ctrl-key) (= key "g"))
+           ((ps:@ e target blur))))))
 
-                ((and is-ctrl (= key "a"))
-                 ((ps:@ e prevent-default))
-                 (focus-link 0))
-
-                ((and is-ctrl (= key "e"))
-                 ((ps:@ e prevent-default))
-                 (focus-link (1- (ps:@ (get-all-links) length))))
-
-                ((and is-ctrl (= key "g"))
-                 ((ps:@ e prevent-default))
-                 (let ((search ((ps:@ document get-element-by-id) "search-input")))
-                   ((ps:@ search blur))
-                   (setf current-link -1)
-                   ((ps:@ (get-all-links) for-each)
-                    (lambda (link)
-                      ((ps:@ link remove-attribute) "data-focused"))))))))))
-
+    ;; Initialization
     (ps:defun init ()
-      (let ((input ((ps:@ document get-element-by-id) "search-input")))
+      ;; Add favicon
+      (let ((favicon ((ps:@ document create-element) "link")))
+        (setf (ps:@ favicon rel) "icon")
+        (setf (ps:@ favicon type) "image/x-icon")
+        (setf (ps:@ favicon href) "favicon.png")
+        ((ps:@ document head append-child) favicon))
+
+      ;; Set up search handlers
+      (let* ((form ((ps:@ document get-element-by-id) "search-form"))
+             (input ((ps:@ document get-element-by-id) "search-input")))
+
         (when input
           (setf (ps:@ input onkeydown)
                 (lambda (e)
-                  (cond
-                    ((and (ps:@ e ctrl-key) (= (ps:@ e key) "n"))
-                     ((ps:@ e prevent-default))
-                     ((ps:@ e stop-propagation)))
-                    ((and (ps:@ e ctrl-key) (= (ps:@ e key) "g"))
-                     ((ps:@ input blur)))
-                    ((= (ps:@ e key) "Enter")
-                     (let ((query (ps:@ input value)))
-                       (when (> (ps:@ query length) 0)
-                         ((ps:@ e prevent-default))
-                         (setf (ps:@ window location href)
-                               (+ "https://startpage.com/search?q="
-                                  ((ps:@ -u-r-i encode) query))))))))))
+                  (handle-search-keydown e))))
+
+        (when form
+          (setf (ps:@ form onsubmit)
+                (lambda (e)
+                  (handle-search-submit e))))
+
+        ;; Add global key handler for Ctrl-S
         (setf (ps:@ document onkeydown) handle-key)))
 
     (setf (ps:@ window onload) init)))
 
 (defun generate-site ()
   (ensure-directories-exist "output/")
+  ;; Copy image
   (alexandria:copy-file (getf *config* :image-path)
-                       (merge-pathnames (getf *config* :image-name)
-                                      "output/")
-                       :if-to-exists :supersede)
+                        (merge-pathnames (getf *config* :image-name)
+                                         "output/")
+                        :if-to-exists :supersede)
+  ;; Copy favicon
+  (alexandria:copy-file "static/favicon.png"
+                        (merge-pathnames "favicon.png" "output/")
+                        :if-to-exists :supersede)
+  ;; Generate other files
   (with-open-file (stream "output/index.html"
-                         :direction :output
-                         :if-exists :supersede)
+                          :direction :output
+                          :if-exists :supersede)
     (write-string (generate-html) stream))
   (with-open-file (stream "output/styles.css"
-                         :direction :output
-                         :if-exists :supersede)
+                          :direction :output
+                          :if-exists :supersede)
     (write-string (generate-css) stream))
   (with-open-file (stream "output/script.js"
-                         :direction :output
-                         :if-exists :supersede)
+                          :direction :output
+                          :if-exists :supersede)
     (write-string (generate-js) stream))
   (format t "~&Static site generated in output/~%"))
